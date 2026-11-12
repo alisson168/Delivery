@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodDelivery | Peça sua comida</title>
+  <style>
+    :root {
+      --orange: #f97316;
+      --orange-dark: #ea580c;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #ececec;
+      --surface: #ffffff;
+      --bg: #fffaf6;
+      --green: #15803d;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink); background: var(--bg); }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    header {
+      background: #fff; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 5;
+    }
+    .topbar {
+      max-width: 1160px; margin: auto; padding: 17px 22px; display: flex;
+      align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 23px; font-weight: 800; letter-spacing: -.7px; }
+    .brand-mark { width: 38px; height: 38px; display: grid; place-items: center; color: white; background: var(--orange); border-radius: 12px; }
+    .brand span:last-child { color: var(--orange); }
+    .location { color: var(--muted); font-size: 13px; }
+    .location strong { display: block; color: var(--ink); font-size: 14px; margin-top: 4px; }
+    .search { flex: 1; max-width: 420px; position: relative; }
+    .search input { width: 100%; padding: 13px 15px 13px 42px; border: 1px solid var(--line); border-radius: 12px; outline: none; background: #fafafa; }
+    .search input:focus { border-color: var(--orange); background: #fff; }
+    .search span { position: absolute; left: 14px; top: 12px; }
+    .cart-button { border: 0; background: var(--orange); color: #fff; border-radius: 12px; padding: 12px 16px; font-weight: 700; }
+    .cart-button:hover, .add:hover, .checkout:hover { background: var(--orange-dark); }
+    main { max-width: 1160px; margin: auto; padding: 26px 22px 60px; }
+    .hero {
+      min-height: 230px; border-radius: 22px; padding: 34px 38px; color: white;
+      background: linear-gradient(110deg, rgba(31,41,55,.92), rgba(31,41,55,.55)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1500&q=85') center/cover;
+      display: flex; align-items: center;
+    }
+    .hero-content { max-width: 510px; }
+    .eyebrow { text-transform: uppercase; font-size: 11px; letter-spacing: 2px; font-weight: 800; color: #fed7aa; }
+    h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.05; margin: 10px 0; }
+    .hero p { color: #f3f4f6; line-height: 1.5; margin: 0 0 18px; }
+    .hero a { display: inline-block; text-decoration: none; background: var(--orange); color: #fff; padding: 12px 18px; border-radius: 10px; font-weight: 700; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; margin: 30px 0 16px; gap: 12px; }
+    h2 { font-size: 23px; margin: 0; }
+    .section-head p { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+    .categories { display: flex; flex-wrap: wrap; gap: 10px; }
+    .category { border: 1px solid var(--line); background: white; padding: 10px 15px; border-radius: 999px; color: var(--ink); }
+    .category.active, .category:hover { background: #fff0e5; border-color: #fdba74; color: var(--orange-dark); }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 24px; align-items: start; }
+    .products { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .product { background: white; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; transition: transform .15s, box-shadow .15s; }
+    .product:hover { transform: translateY(-3px); box-shadow: 0 10px 25px #0000000b; }
+    .product img { width: 100%; height: 145px; object-fit: cover; display: block; background: #eee; }
+    .product-info { padding: 13px; }
+    .product-info h3 { margin: 0 0 6px; font-size: 16px; }
+    .product-info p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.4; min-height: 34px; }
+    .product-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; }
+    .price { font-weight: 800; }
+    .add { border: 0; background: var(--orange); color: white; width: 34px; height: 34px; border-radius: 10px; font-size: 21px; line-height: 1; }
+    .cart { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 18px; position: sticky; top: 90px; }
+    .cart h2 { font-size: 19px; }
+    .cart-sub { color: var(--muted); font-size: 12px; margin: 5px 0 15px; }
+    .cart-items { display: grid; gap: 12px; max-height: 330px; overflow: auto; }
+    .empty { text-align: center; color: var(--muted); padding: 28px 8px; font-size: 13px; }
+    .cart-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    .cart-item strong { display: block; font-size: 13px; }
+    .cart-item small { color: var(--muted); }
+    .quantity { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+    .quantity button { border: 1px solid var(--line); background: #fff; border-radius: 7px; width: 25px; height: 25px; }
+    .cart-total { border-top: 1px solid var(--line); margin-top: 15px; padding-top: 14px; }
+    .total-line { display: flex; justify-content: space-between; font-size: 13px; margin: 7px 0; color: var(--muted); }
+    .total-line.final { font-size: 17px; font-weight: 800; color: var(--ink); margin-top: 12px; }
+    .checkout { width: 100%; border: 0; border-radius: 10px; background: var(--orange); color: white; padding: 13px; font-weight: 800; margin-top: 12px; }
+    .checkout:disabled { background: #d1d5db; cursor: not-allowed; }
+    .notice { display: none; margin-top: 12px; border-radius: 10px; background: #f0fdf4; color: var(--green); padding: 11px; font-size: 12px; line-height: 1.4; }
+    footer { text-align: center; color: var(--muted); padding: 25px; border-top: 1px solid var(--line); font-size: 12px; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .cart { position: static; }
+      .products { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .topbar { flex-wrap: wrap; }
+      .location { order: 3; width: 100%; }
+      .search { order: 4; max-width: none; flex-basis: 100%; }
+      .hero { padding: 27px 23px; min-height: 210px; }
+      .products { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .product img { height: 112px; }
+      .product-info { padding: 10px; }
+      .product-info h3 { font-size: 14px; }
+      .product-info p { font-size: 11px; }
+      .section-head { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark">🍔</span>Food<span>Delivery</span></div>
+      <div class="location">Entregar em:<strong>📍 Seu endereço</strong></div>
+      <label class="search"><span>🔎</span><input id="search" type="search" placeholder="Buscar comida ou restaurante..."></label>
+      <button class="cart-button" onclick="document.getElementById('cart').scrollIntoView({behavior:'smooth'})">🛒 Carrinho (<span id="cart-count">0</span>)</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="eyebrow">Seu delivery favorito</div>
+        <h1>Comida boa, sem sair de casa.</h1>
+        <p>Escolha seus pratos favoritos e monte seu pedido. Este é um protótipo para o projeto FoodDelivery.</p>
+        <a href="#cardapio">Ver cardápio</a>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div><h2>Categorias</h2><p>Escolha o que está com vontade de comer.</p></div>
+    </div>
+    <nav class="categories" id="categories">
+      <button class="category active" data-category="Todos">🍽️ Todos</button>
+      <button class="category" data-category="Hambúrguer">🍔 Hambúrguer</button>
+      <button class="category" data-category="Pizza">🍕 Pizza</button>
+      <button class="category" data-category="Comida brasileira">🍛 Brasileira</button>
+      <button class="category" data-category="Bebida">🥤 Bebidas</button>
+      <button class="category" data-category="Sobremesa">🍰 Sobremesas</button>
+    </nav>
+
+    <div class="layout" id="cardapio">
+      <section>
+        <div class="section-head">
+          <div><h2>Mais pedidos</h2><p>Uma seleção para matar sua fome.</p></div>
+        </div>
+        <div class="products" id="products"></div>
+      </section>
+
+      <aside class="cart" id="cart">
+        <h2>🛒 Seu carrinho</h2>
+        <div class="cart-sub">Confira os itens antes de finalizar.</div>
+        <div class="cart-items" id="cart-items"><div class="empty">Seu carrinho está vazio.<br>Adicione algum produto!</div></div>
+        <div class="cart-total">
+          <div class="total-line"><span>Subtotal</span><strong id="subtotal">R$ 0,00</strong></div>
+          <div class="total-line"><span>Entrega</span><strong id="delivery">R$ 5,00</strong></div>
+          <div class="total-line final"><span>Total</span><strong id="total">R$ 0,00</strong></div>
+          <button class="checkout" id="checkout" disabled onclick="finishOrder()">Finalizar pedido</button>
+          <div class="notice" id="notice"></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>FoodDelivery • Protótipo acadêmico desenvolvido em HTML, CSS e JavaScript.</footer>
+
+  <script>
+    const products = [
+      { id: 1, name: "Burger clássico", category: "Hambúrguer", description: "Hambúrguer, queijo, alface e molho especial.", price: 24.90, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=700&q=80" },
+      { id: 2, name: "Pizza de calabresa", category: "Pizza", description: "Calabresa, cebola, queijo e molho de tomate.", price: 39.90, image: "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?auto=format&fit=crop&w=700&q=80" },
+      { id: 3, name: "Prato feito", category: "Comida brasileira", description: "Arroz, feijão, bife, ovo e batata frita.", price: 22.00, image: "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=700&q=80" },
+      { id: 4, name: "Suco de laranja", category: "Bebida", description: "Suco natural de laranja, 400 ml.", price: 8.50, image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=700&q=80" },
+      { id: 5, name: "Brownie", category: "Sobremesa", description: "Brownie de chocolate com cobertura.", price: 12.00, image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=700&q=80" },
+      { id: 6, name: "Pizza marguerita", category: "Pizza", description: "Queijo, tomate fresco, manjericão e molho.", price: 37.90, image: "https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=700&q=80" },
+      { id: 7, name: "Cheeseburger duplo", category: "Hambúrguer", description: "Dois hambúrgueres, queijo e molho da casa.", price: 31.90, image: "https://images.unsplash.com/photo-1553979459-d2229ba7433a?auto=format&fit=crop&w=700&q=80" },
+      { id: 8, name: "Refrigerante", category: "Bebida", description: "Lata de refrigerante, 350 ml.", price: 6.00, image: "https://images.unsplash.com/photo-1581636625402-29b2a704ef13?auto=format&fit=crop&w=700&q=80" },
+      { id: 9, name: "Pudim", category: "Sobremesa", description: "Pudim tradicional com calda de caramelo.", price: 9.90, image: "https://images.unsplash.com/photo-1551024506-0ccccd828d307?auto=format&fit=crop&w=700&q=80" }
+    ];
+
+    const cart = new Map();
+    let selectedCategory = "Todos";
+    const money = value => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+    function renderProducts() {
+      const term = document.getElementById("search").value.toLowerCase().trim();
+      const filtered = products.filter(p =>
+        (selectedCategory === "Todos" || p.category === selectedCategory) &&
+        (p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term))
+      );
+      document.getElementById("products").innerHTML = filtered.length ? filtered.map(p => `
+        <article class="product">
+          <img src="${p.image}" alt="${p.name}" loading="lazy">
+          <div class="product-info">
+            <h3>${p.name}</h3>
+            <p>${p.description}</p>
+            <div class="product-bottom">
+              <span class="price">${money(p.price)}</span>
+              <button class="add" aria-label="Adicionar ${p.name}" onclick="addToCart(${p.id})">+</button>
+            </div>
+          </div>
+        </article>`).join("") : '<p>Nenhum produto encontrado.</p>';
+    }
+
+    function addToCart(id) {
+      cart.set(id, (cart.get(id) || 0) + 1);
+      renderCart();
+    }
+
+    function changeQuantity(id, delta) {
+      const next = (cart.get(id) || 0) + delta;
+      if (next <= 0) cart.delete(id); else cart.set(id, next);
+      renderCart();
+    }
+
+    function renderCart() {
+      const entries = [...cart.entries()];
+      const count = entries.reduce((sum, [, quantity]) => sum + quantity, 0);
+      const subtotal = entries.reduce((sum, [id, quantity]) => {
+        const product = products.find(p => p.id === id);
+        return sum + product.price * quantity;
+      }, 0);
+      const delivery = count > 0 ? 5 : 0;
+      document.getElementById("cart-count").textContent = count;
+      document.getElementById("subtotal").textContent = money(subtotal);
+      document.getElementById("delivery").textContent = money(delivery);
+      document.getElementById("total").textContent = money(subtotal + delivery);
+      document.getElementById("checkout").disabled = count === 0;
+      document.getElementById("cart-items").innerHTML = entries.length ? entries.map(([id, quantity]) => {
+        const p = products.find(item => item.id === id);
+        return `<div class="cart-item">
+          <div><strong>${p.name}</strong><small>${money(p.price)} cada</small>
+            <div class="quantity">
+              <button onclick="changeQuantity(${id}, -1)" aria-label="Diminuir">−</button>
+              <span>${quantity}</span>
+              <button onclick="changeQuantity(${id}, 1)" aria-label="Aumentar">+</button>
+            </div>
+          </div>
+          <strong>${money(p.price * quantity)}</strong>
+        </div>`;
+      }).join("") : '<div class="empty">Seu carrinho está vazio.<br>Adicione algum produto!</div>';
+    }
+
+    function finishOrder() {
+      const notice = document.getElementById("notice");
+      const count = [...cart.values()].reduce((sum, quantity) => sum + quantity, 0);
+      notice.style.display = "block";
+      notice.textContent = `Pedido de demonstração criado com ${count} item(ns)! Para registrar pedidos de verdade, conecte esta página à API Spring Boot.`;
+      cart.clear();
+      renderCart();
+    }
+
+    document.getElementById("search").addEventListener("input", renderProducts);
+    document.getElementById("categories").addEventListener("click", event => {
+      const button = event.target.closest("button[data-category]");
+      if (!button) return;
+      selectedCategory = button.dataset.category;
+      document.querySelectorAll(".category").forEach(item => item.classList.toggle("active", item === button));
+      renderProducts();
+    });
+
+    renderProducts();
+    renderCart();
+  </script>
+</body>
+</html>
